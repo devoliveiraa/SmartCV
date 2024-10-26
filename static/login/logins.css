@@ -16,8 +16,10 @@ body {
 }
 
 /* Exibe a mensagem de erro quando a classe has-error está presente */
+
 .input_container.has-error .invalid-feedback {
     display: block; /* Mostra a mensagem de erro */
+    
 }
 
 .title_container p {
