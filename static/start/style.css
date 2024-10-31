@@ -101,6 +101,11 @@ footer {
     gap: 30px;
 }
 
+.social-icons {
+    display: flex;
+    gap: 16px;
+}
+
 .footer-left {
     display: flex;
     flex-direction: column;
@@ -111,6 +116,7 @@ footer {
     width: 30px;
     margin-bottom: 20px;
     transition: transform 0.3s;
+    
 }
 
 .footer-left img:hover {
@@ -119,8 +125,8 @@ footer {
 
 .social-links {
     display: flex;
-    gap: 15px;
     list-style: none;
+    
 }
 
 .footer-right {
