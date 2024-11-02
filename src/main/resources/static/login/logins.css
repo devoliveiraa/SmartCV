@@ -8,12 +8,6 @@ body {
     background-color: #f0f0f0; /* Ou qualquer cor de fundo desejada */
 }
 
-
-.has-error {
-    border: 1px solid #e74c3c; /* Cor da borda quando há erro */
-    background-color: #fce4e4; /* Cor de fundo para destacar o erro */
-}
-
 .invalid-feedback {
     display: none; /* Inicialmente escondido */
     color: #e74c3c; /* Cor do texto de erro */
@@ -22,8 +16,10 @@ body {
 }
 
 /* Exibe a mensagem de erro quando a classe has-error está presente */
+
 .input_container.has-error .invalid-feedback {
     display: block; /* Mostra a mensagem de erro */
+    
 }
 
 .title_container p {

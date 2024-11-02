@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign-up</title>
-    <link rel="stylesheet" th:href="@{/signUp/signUp.css}">
+    <link rel="stylesheet" th:href="@{/register/register.css}">
 </head>
 <body>
 
-<form class="form_container" th:action="@{/SmartCV/signUpRegister}" th:object="${dtoRegister}" method="post">
+<form class="form_container" th:action="@{/SmartCV/register}" th:object="${dtoRegister}" method="post">
     <div class="logo_container"></div>
     <div class="title_container">
         <p class="title">Sign-Up</p>
@@ -45,6 +45,19 @@
         <input placeholder="Password" th:errorclass="is-invalid" th:field="*{password}" title="Inpit title" name="input-name" type="password" class="input_field" id="password_field">
         <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
     </div>
+
+    <div class="form-group">
+        <label for="work">Profession</label>
+        <select id="work" name="profession" class="select-custom">
+            <option th:each="profession : ${listaStatusUser}"
+                    th:value="${profession.name()}"
+                    th:text="${profession.toString()}"
+                    th:selected="${profession == dtoRegister.profession}">
+            </option>
+        </select>
+    </div>
+
+
 
     <button title="Sign In" type="submit" class="sign-in_btn">
         <span>Sign In</span>

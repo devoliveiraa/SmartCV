@@ -15,11 +15,56 @@ body {
     min-height: 100vh;
 }
 
+.profile h1 {
+    color: black;
+}
+
 /* Header */
 header {
     background-color: #fff;
     padding: 20px 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 20px; /* Ajusta a distância da borda direita */
+    top: 10px; /* Ajusta a distância do topo */
+}
+
+.profile h1{
+    margin-right: 5px;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right:30px;
+}
+
+a {
+    margin-right:15px;
+    text-decoration: none;
+    height: 35px;
+    width: 35px;
+}
+
+.info {
+    text-align: right;
+}
+
+h1 {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.67);
+}
+
+p {
+    margin: 0;
+    color: #666;
 }
 
 .header-content {
@@ -168,5 +213,10 @@ footer {
 
     .footer-right {
         justify-content: center;
+    }
+
+    .profile {
+        position: static; /* Remove o posicionamento absoluto em telas pequenas */
+        margin-top: 20px;
     }
 }

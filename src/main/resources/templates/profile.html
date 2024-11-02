@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/profile/profile.css">
+</head>
+<body>
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <ul>
+            <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Setting</a></li>
+            <li><a href="#"><i class="fas fa-folder"></i> Folder</a></li>
+            <li><a href="#"><i class="fas fa-info-circle"></i> Info</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img src="https://img.icons8.com/color/48/test-account.png" alt="Profile Picture">
+            </div>
+            <h3 class="profile-name" th:text="${newUsername}"></h3> <!-- Nome padrão se não tiver usuário -->
+            <p class="profile-job" th:text="${newUsernameProfession}"></p>
+        </div>
+
+        <!-- Form -->
+        <form th:action="@{/SmartCV/profileEdit(id=${newUsernameId})}" method="post" th:object="${perfilDto}" class="profile-form">
+            <div class="form-group">
+                <label for="first-name">Name</label>
+                <input type="text" th:field="*{username}" id="first-name" placeholder="Name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" th:field="*{email}" id="email" placeholder="Email">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</div>
+            </div>
+
+            <!--PRECISO ARRUMART O OPTION DE BAAIXO DAS PROFISSOES-->
+
+            <div class="form-group">
+                <label for="work">Profession</label>
+                <select id="work" name="profession" class="select-custom">
+                    <!-- Primeira opção se houver uma profissão selecionada -->
+                    <option th:if="${newUsernameProfession != null}"
+                            th:value="${newUsernameProfession}"
+                            th:text="${newUsernameProfession}"
+                            selected>
+                    </option>
+
+                    <!-- Outras opções da lista -->
+                    <option th:each="profession : ${listaStatusUser}"
+                            th:if="${profession != newUsernameProfession}"
+                            th:value="${profession.name()}"
+                            th:text="${profession.toString()}">
+                    </option>
+                </select>
+            </div>
+
+
+
+
+            <div class="form-group">
+                <label for="about">About me</label>
+                <textarea id="about" placeholder="About me"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Save</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

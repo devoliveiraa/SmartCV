@@ -1,5 +1,6 @@
 package com.smartcv.smartcv.model;
 
+import com.smartcv.smartcv.dto.Profession;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -18,6 +19,9 @@ public class Users {
 
     private String password;
 
+    @Enumerated(EnumType.STRING) // quando salvo no banco de dados vai salvar como string
+    private Profession profession;
+
 
 
     public Users() {
@@ -27,11 +31,20 @@ public class Users {
         this.id = id;
     }
 
-    public Users(Long id, String username, String email, String password) {
+    public Users(Long id, String username, String email, String password, Profession profession) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profession = profession;
+    }
+
+    public Profession getProfession() {
+        return profession;
+    }
+
+    public void setProfession(Profession profession) {
+        this.profession = profession;
     }
 
     public Long getId() {

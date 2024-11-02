@@ -1,8 +1,11 @@
 package com.smartcv.smartcv.service;
 
-import com.smartcv.smartcv.Dto.LoginDto;
+import com.smartcv.smartcv.dto.LoginDto;
 import com.smartcv.smartcv.model.Users;
 import com.smartcv.smartcv.repository.UsersRepository;
+import com.smartcv.smartcv.strategy.CookieAttributes;
+import com.smartcv.smartcv.strategy.EmailValid;
+import com.smartcv.smartcv.strategy.IsInvalidPassword;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,10 +13,10 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
-import java.time.Duration;
 
 @Service
 public class ServiceLogin {
@@ -21,91 +24,90 @@ public class ServiceLogin {
 
     @Autowired
     private UsersRepository repository;
-    
-    
-    
-    public ModelAndView login (){
+
+    @Autowired
+    private EmailValid emailValid;
+
+    @Autowired
+    private IsInvalidPassword isInvalidPassword;
+
+    @Autowired
+    private CookieAttributes cookieAttributes;
+
+
+    public ModelAndView login(@ModelAttribute("loginDto") LoginDto loginDto) {
         ModelAndView modelAndView = new ModelAndView("login");
 
-        LoginDto dto = new LoginDto();
-
-        modelAndView.addObject("loginDto", dto);
+        modelAndView.addObject("loginDto", loginDto);
 
         return modelAndView;
     }
-    
 
-    public ModelAndView sendLogin (@Valid LoginDto dto, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    public ModelAndView sendLogin(@Valid @ModelAttribute("loginDto") LoginDto loginDto, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response) throws IOException {
         ModelAndView mv = new ModelAndView("login");
 
-        Users users = dto.request();
+        Users users = loginDto.request();
+
+        var emailInvalid = emailValid.validation(users);
+
+        var passwordInvalid = isInvalidPassword.validation(users);
+
+        var verificationEmailAndPasswordAndUsername = repository.findByEmailAndPassword(users.getEmail(), users.getPassword());
 
         if (bindingResult.hasErrors()) {
-            System.out.println(users.toString());
-            System.err.println("Bindig um");
             return mv;
         }
 
-        var passwordInvalid = isPasswordInvalid(users);
-
-        var emailValid = emailValid(users);
-
-        var verificationUserAndPassword = repository.findByEmailAndPassword(users.getEmail(), users.getPassword());
-
-
-        if (passwordInvalid) {
-            bindingResult.rejectValue("password", "error.loginDto", "The password must have between 8 to 20 characters.");
-            System.err.println("Bindig 2");
-            return mv;
-        }
-
-        if (!emailValid){
+        if (!emailInvalid) {
             bindingResult.rejectValue("email", "error.loginDto", "Invalid !");
-            System.err.println("Bindig 3");
+            return mv;
+
+        } else if (passwordInvalid) {
+            bindingResult.rejectValue("password", "error.loginDto", "⬛ Your password need have at least 8 to 20 character.");
+            bindingResult.rejectValue("password", "error.loginDto", "⬛ Supper and lower case letters and symbols.");
             return mv;
         }
 
-        if (verificationUserAndPassword.isEmpty()) {
-            bindingResult.rejectValue("password", "error.loginDto", "Email or password.");
-            System.err.println("Bindig 4");
+        if (verificationEmailAndPasswordAndUsername.isPresent()) {
+
+            if (users.getEmail() != null && users.getPassword() != null) {
+
+                Users user = verificationEmailAndPasswordAndUsername.get(); // Recupera o usuário autenticado após validação bem-sucedida de email e senha e username
+
+                try {
+
+
+                    request.getSession().setAttribute("username", user.getUsername());
+                    request.getSession().setAttribute("profession", user.getProfession().name());
+                    request.getSession().setAttribute("id", user.getId());
+
+
+                    Cookie userCookie = new Cookie("username", user.getUsername());
+                    cookieAttributes.setCookieAttributes(userCookie);
+
+                    Cookie userCookieProfession = new Cookie("profession", user.getProfession().name());
+                    cookieAttributes.setCookieAttributes(userCookieProfession);
+
+                    Cookie userCookieId = new Cookie("id", String.valueOf(user.getId()));
+                    cookieAttributes.setCookieAttributes(userCookieId);
+
+                    response.addCookie(userCookie);
+                    response.addCookie(userCookieId);
+                    response.addCookie(userCookieProfession);
+
+                    return new ModelAndView("redirect:/SmartCV");
+
+                } catch (Exception e) {
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred, try it again");
+                    return null;
+                }
+            }
+
+        } else {
+            bindingResult.rejectValue("password", "error.loginDto", "User or password invalid, try again.");
             return mv;
         }
-
-        try {
-            System.out.println("Deu certo");
-
-            Users user = verificationUserAndPassword.get();
-
-            request.getSession().setAttribute("email", users.getEmail()); // o nome do usuario foi armazenado na sessão após um cadastro bem sucedido
-
-
-            Cookie userCookie = new Cookie("email", users.getEmail());
-            userCookie.setMaxAge((int) Duration.ofMinutes(5).getSeconds()); // expira em 5 minutos
-            userCookie.setPath("/"); // disponível para toda a aplicação
-            userCookie.setHttpOnly(true); // significa que o cookie não pode ser acessado via JavaScript no navegador do cliente.
-            userCookie.setSecure(true); // isso significa que o cookie só será enviado para o servidor em conexões seguras, ou seja, via HTTPS.
-            response.addCookie(userCookie);
-
-
-            response.getWriter().println("Atributo armazenado na sessão: " + users.getId());
-
-            return new ModelAndView("redirect:/SmartCV");
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred, try it again");
-            return null;
-        }
+        return mv;
     }
-
-    private static boolean emailValid(Users users) {
-        return users.getEmail().contains("@gmail.com")
-                || users.getEmail().contains("@outlook.com")
-                || users.getEmail().contains("@hotmail.com");
-    }
-
-    private static boolean isPasswordInvalid(Users users) {
-        return users.getPassword().length() <= 7
-                || users.getPassword().length() >= 19;
-    }
-
 }

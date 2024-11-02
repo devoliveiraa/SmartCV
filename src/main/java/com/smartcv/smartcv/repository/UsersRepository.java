@@ -7,9 +7,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UsersRepository extends JpaRepository<Users, Long> {
+public interface UsersRepository extends JpaRepository<Users, UUID> {
 
     @Query("SELECT u FROM Users u WHERE u.email = :email AND u.password = :password ")
     Optional<Users> findByEmailAndPassword(@Param("email")String email, @Param("password") String password);
@@ -19,4 +20,11 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     @Query("SELECT u FROM Users u WHERE u.email = :email")
     Optional<Users> findByEmail(@Param("email")String email);
+
+    @Query("SELECT u FROM Users u WHERE u.id = :id")
+    Optional<Users> findById(@Param("id") Long id);
+
+    @Query("SELECT u FROM Users u WHERE u.email = :email AND u.username = :username ")
+    Optional<Users> findByEmailAndUsername(@Param("email")String email, @Param("username") String username);
+
 }

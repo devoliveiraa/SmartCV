@@ -1,4 +1,4 @@
-package com.smartcv.smartcv.Dto;
+package com.smartcv.smartcv.dto;
 
 import com.smartcv.smartcv.model.Users;
 
@@ -12,13 +12,9 @@ public class RegisterDto {
 
     private String password;
 
-    public RegisterDto() {
-    }
+    private Profession profession;
 
-    public RegisterDto(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
+    public RegisterDto() {
     }
 
     public String getUsername() {
@@ -45,17 +41,12 @@ public class RegisterDto {
         this.password = password;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RegisterDto that = (RegisterDto) o;
-        return Objects.equals(username, that.username) && Objects.equals(email, that.email) && Objects.equals(password, that.password);
+    public Profession getProfession() {
+        return profession;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(username, email, password);
+    public void setProfession(Profession profession) {
+        this.profession = profession;
     }
 
     public Users request (){
@@ -63,7 +54,10 @@ public class RegisterDto {
         users.setUsername(this.username);
         users.setEmail(this.email);
         users.setPassword(this.password);
+        users.setProfession(this.profession);
         return users;
     }
+
+
 
 }
