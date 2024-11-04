@@ -2,16 +2,20 @@ package com.smartcv.smartcv.model;
 
 import com.smartcv.smartcv.dto.Profession;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 public class Users {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(name = "id", columnDefinition = "CHAR(36)")
+    private String id;
 
     private String username;
 
@@ -22,16 +26,11 @@ public class Users {
     @Enumerated(EnumType.STRING) // quando salvo no banco de dados vai salvar como string
     private Profession profession;
 
-
-
     public Users() {
+        this.id = UUID.randomUUID().toString();
     }
 
-    public Users(Long id) {
-        this.id = id;
-    }
-
-    public Users(Long id, String username, String email, String password, Profession profession) {
+    public Users(String id, String username, String email, String password, Profession profession) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -39,20 +38,16 @@ public class Users {
         this.profession = profession;
     }
 
-    public Profession getProfession() {
-        return profession;
-    }
-
-    public void setProfession(Profession profession) {
-        this.profession = profession;
-    }
-
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
+    }
+
+    public Profession getProfession() {
+        return profession;
     }
 
     public String getUsername() {
@@ -77,6 +72,10 @@ public class Users {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setProfession(Profession profession) {
+        this.profession = profession;
     }
 
     @Override

@@ -9,8 +9,6 @@ import com.smartcv.smartcv.model.Users;
 import com.smartcv.smartcv.repository.UsersRepository;
 import com.smartcv.smartcv.strategy.CookieAttributes;
 import com.smartcv.smartcv.strategy.EmailValid;
-import com.smartcv.smartcv.strategy.IsInvalidPassword;
-import org.springframework.core.convert.converter.Converter;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
-import java.time.Duration;
 
 @Service
 public class ServicePerfil {
@@ -48,22 +45,19 @@ public class ServicePerfil {
         ModelAndView mv = new ModelAndView("profile");
         RegisterDto dto = new RegisterDto();
 
-        Users users = new Users();
-
-
         mv.addObject("perfilDto", dto);
         mv.addObject("listaStatusUser", Profession.values());
 
         return mv;
     }
 
-    public ModelAndView pageAndInfo(@RequestParam(name = "id") Long id, @ModelAttribute("perfilDto") PerfilDto perfilDto, HttpServletRequest request) {
+    public ModelAndView pageAndInfo(@RequestParam(name = "id") String id, @ModelAttribute("perfilDto") PerfilDto perfilDto, HttpServletRequest request) {
         ModelAndView mv = new ModelAndView("profile");
 
         var optionalCadastro = repository.findById(id);
 
-        Long newUsernameId = (Long) request.getSession().getAttribute("id");
-        Long userIdFromSession = (Long) request.getSession().getAttribute("id");
+        String newUsernameId = (String) request.getSession().getAttribute("id");
+        String userIdFromSession = (String) request.getSession().getAttribute("id");
         String newUsername = (String) request.getSession().getAttribute("username");
         String newUsernameProfession = (String) request.getSession().getAttribute("profession");
 
@@ -140,12 +134,7 @@ public class ServicePerfil {
             }
 
             if (update) {
-
-                System.err.println("2");
-
                 repository.save(user);
-
-                System.err.println("SALVOU AQUI");
 
                 request.getSession().setAttribute("username", user.getUsername());
                 request.getSession().setAttribute("id", user.getId());
@@ -157,7 +146,7 @@ public class ServicePerfil {
                 Cookie professionCookie = new Cookie("profession", user.getProfession().name());
                 cookieAttributes.setCookieAttributes(professionCookie);
 
-                Cookie idCookie = new Cookie("id", user.getId().toString());
+                Cookie idCookie = new Cookie("id", user.getId());
                 cookieAttributes.setCookieAttributes(idCookie);
 
                 response.addCookie(idCookie);

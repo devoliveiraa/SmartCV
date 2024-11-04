@@ -63,7 +63,7 @@ public class ServiceRegister {
 
         var verificationEmailAndPassword = repository.findByEmailAndPassword(users.getEmail(), users.getPassword());
 
-        var userIsNull = users.getUsername() != null && users.getEmail() != null && users.getPassword() != null && users.getProfession() != null;
+        var userIsNotNull = users.getUsername() != null && users.getEmail() != null && users.getPassword() != null && users.getProfession() != null;
 
         if (bindingResult.hasErrors()) {
             return mv;
@@ -85,24 +85,27 @@ public class ServiceRegister {
 
             if (verificationEmailAndPassword.isEmpty()) {
 
-                if (userIsNull) {
+                if (userIsNotNull) {
 
                     try {
-                     /*   String encodedPassword = securityConfig.encode(registerDto.getPassword());
-                        users.setPassword(encodedPassword);*/
+
+                        users.setPassword(securityConfig.encode(users.getPassword()));
+
                         this.repository.save(users);
 
-                        request.getSession().setAttribute("username", users.getUsername());
-                        request.getSession().setAttribute("id", users.getId());
-                        request.getSession().setAttribute("profession", users.getProfession().name());
+                        var user = repository.findByEmailAndPassword(users.getEmail(), users.getPassword()).get();
 
-                        Cookie userCookie = new Cookie("username", users.getUsername());
+                        request.getSession().setAttribute("username", user.getUsername());
+                        request.getSession().setAttribute("id", user.getId());
+                        request.getSession().setAttribute("profession", user.getProfession().name());
+
+                        Cookie userCookie = new Cookie("username", user.getUsername());
                         cookieAttributes.setCookieAttributes(userCookie);
 
-                        Cookie idCookie = new Cookie("id", String.valueOf(users.getId()));
+                        Cookie idCookie = new Cookie("id", user.getId());
                         cookieAttributes.setCookieAttributes(idCookie);
 
-                        Cookie professionCookie = new Cookie("profession", users.getProfession().name());
+                        Cookie professionCookie = new Cookie("profession", user.getProfession().name());
                         cookieAttributes.setCookieAttributes(professionCookie);
 
                         response.addCookie(userCookie);
@@ -115,7 +118,6 @@ public class ServiceRegister {
                         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred, try it again");
                         return null;
                     }
-
                 } else {
                     System.err.println("This user is null, try again later");
                 }

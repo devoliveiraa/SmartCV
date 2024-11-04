@@ -59,7 +59,6 @@ public class LoginDto {
         Users users = new Users();
         users.setEmail(this.email);
         users.setPassword(this.password);
-        users.setProfession(this.profession);
         return users;
     }
 }

@@ -11,12 +11,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 public class ServiceLogin {
@@ -33,6 +36,9 @@ public class ServiceLogin {
 
     @Autowired
     private CookieAttributes cookieAttributes;
+
+    @Autowired
+    private PasswordEncoder securityConfig;
 
 
     public ModelAndView login(@ModelAttribute("loginDto") LoginDto loginDto) {
@@ -53,7 +59,9 @@ public class ServiceLogin {
 
         var passwordInvalid = isInvalidPassword.validation(users);
 
-        var verificationEmailAndPasswordAndUsername = repository.findByEmailAndPassword(users.getEmail(), users.getPassword());
+        System.out.println("Senha do cara la " + users.getPassword());
+
+        var verificationEmailAndPassword = repository.findByEmailAndPassword(users.getEmail(), users.getPassword());
 
         if (bindingResult.hasErrors()) {
             return mv;
@@ -69,38 +77,37 @@ public class ServiceLogin {
             return mv;
         }
 
-        if (verificationEmailAndPasswordAndUsername.isPresent()) {
+        if (verificationEmailAndPassword.isPresent()) {
 
             if (users.getEmail() != null && users.getPassword() != null) {
 
-                Users user = verificationEmailAndPasswordAndUsername.get(); // Recupera o usuário autenticado após validação bem-sucedida de email e senha e username
+                    Users user = verificationEmailAndPassword.get(); // Recupera o usuário autenticado após validação bem-sucedida de email e senha e username
 
-                try {
+                    try {
 
+                        request.getSession().setAttribute("username", user.getUsername());
+                        request.getSession().setAttribute("profession", user.getProfession().name());
+                        request.getSession().setAttribute("id", user.getId());
 
-                    request.getSession().setAttribute("username", user.getUsername());
-                    request.getSession().setAttribute("profession", user.getProfession().name());
-                    request.getSession().setAttribute("id", user.getId());
+                        Cookie userCookie = new Cookie("username", user.getUsername());
+                        cookieAttributes.setCookieAttributes(userCookie);
 
+                        Cookie userCookieProfession = new Cookie("profession", user.getProfession().name());
+                        cookieAttributes.setCookieAttributes(userCookieProfession);
 
-                    Cookie userCookie = new Cookie("username", user.getUsername());
-                    cookieAttributes.setCookieAttributes(userCookie);
+                        Cookie userCookieId = new Cookie("id", user.getId());
+                        cookieAttributes.setCookieAttributes(userCookieId);
 
-                    Cookie userCookieProfession = new Cookie("profession", user.getProfession().name());
-                    cookieAttributes.setCookieAttributes(userCookieProfession);
+                        response.addCookie(userCookie);
+                        response.addCookie(userCookieId);
+                        response.addCookie(userCookieProfession);
 
-                    Cookie userCookieId = new Cookie("id", String.valueOf(user.getId()));
-                    cookieAttributes.setCookieAttributes(userCookieId);
+                        return new ModelAndView("redirect:/SmartCV");
 
-                    response.addCookie(userCookie);
-                    response.addCookie(userCookieId);
-                    response.addCookie(userCookieProfession);
-
-                    return new ModelAndView("redirect:/SmartCV");
-
-                } catch (Exception e) {
-                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred, try it again");
-                    return null;
+                    } catch (Exception e) {
+                        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred, try it again");
+                        return null;
+                    }
                 }
             }
 

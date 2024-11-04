@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/SmartCV")
@@ -36,19 +37,16 @@ public class ControllerSmartCv {
 
     @GetMapping
     public ModelAndView index (HttpServletRequest request){
-        ModelAndView index = new ModelAndView("index");
         return serviceIndex.index(request);
     }
 
     @GetMapping("/login")
     public ModelAndView login (@ModelAttribute("loginDto") LoginDto loginDto){
-        ModelAndView login = new ModelAndView("login");
         return serviceLogin.login(loginDto);
     }
 
     @GetMapping("/register")
     public ModelAndView singUp (@ModelAttribute("dtoRegister")RegisterDto dto){
-        ModelAndView signUp = new ModelAndView("register");
         return service.signUpPage(dto);
     }
 
@@ -68,7 +66,7 @@ public class ControllerSmartCv {
     }
 
     @GetMapping("/profile")
-    public ModelAndView perfil (@RequestParam(name = "id")Long id ,@ModelAttribute("perfilDto") PerfilDto perfilDto, HttpServletRequest request){
+    public ModelAndView perfil (@RequestParam(name = "id") String id , @ModelAttribute("perfilDto") PerfilDto perfilDto, HttpServletRequest request){
             return servicePerfil.pageAndInfo(id, perfilDto, request);
     }
 

@@ -31,7 +31,7 @@
         </div>
 
         <!-- Form -->
-        <form th:action="@{/SmartCV/profileEdit(id=${newUsernameId})}" method="post" th:object="${perfilDto}" class="profile-form">
+        <form th:action="@{/SmartCV/profileEdit(id=${newUsernameId})}" method="post" th:object="${perfilDto}" class="profile-form" >
             <div class="form-group">
                 <label for="first-name">Name</label>
                 <input type="text" th:field="*{username}" id="first-name" placeholder="Name">

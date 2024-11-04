@@ -10,8 +10,7 @@ public class IsInvalidPassword implements ValidationImpl {
 
     @Override
     public boolean validation(Users users) {
-        return users.getPassword().length() <= 7
-                || users.getPassword().length() >= 19 ||
-                !users.getPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#\\$%\\^&\\*]).{8,20}$");
+        return !users.getPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#\\$%\\^&\\*]).{2,20}$");
+
     }
 }
